@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CAE Team Task Tracker</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="CAE 업무">
+<meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="theme-color" content="#ffffff">
+<style>
+*{box-sizing:border-box}body{font-family:Arial,"Malgun Gothic",sans-serif;background:#fff;color:#1f2937;margin:0;padding:18px;min-width:320px;touch-action:manipulation}button,input,select,textarea{font:inherit}
+.hidden{display:none!important}
+.app{max-width:1600px;margin:auto}.top,.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.sub{font-size:13px;color:#6b7280}h1{font-size:24px;margin:4px 0}
+.btn{background:#fff;border:1px solid #d1d5db;border-radius:10px;padding:11px 15px;cursor:pointer;font-weight:700;min-height:44px;color:#1f2937}.btn.sm{padding:6px 10px;min-height:34px;border-radius:8px;font-size:13px}.primary{color:#2563eb;border-color:#2563eb}
+.toolbar{margin:16px 0;padding:10px;border:1px solid #e5e7eb;border-radius:10px}.nav{display:flex;gap:8px;align-items:center}.month{min-width:170px;text-align:center;font-weight:800}
+.legend{display:flex;gap:6px 15px;font-size:12px;color:#6b7280;flex-wrap:wrap;align-items:center}
+.dot{width:11px;height:11px;display:inline-block;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.wrap{border:1px solid #e5e7eb;border-radius:10px;overflow-x:auto;overflow-y:hidden;cursor:grab;user-select:none;-webkit-user-select:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}.wrap.dragging{cursor:grabbing}.wrap.dragging .bar{pointer-events:none}
+#board{position:relative}
+.row{display:flex;border-top:1px solid #e5e7eb;min-height:46px}.row.head{border-top:0}
+.name{position:sticky;left:0;z-index:5;background:#fff;flex:none;padding:8px;border-right:1px solid #e5e7eb;font-size:12px;overflow:hidden;display:flex;flex-direction:column;justify-content:center;box-shadow:2px 0 4px rgba(0,0,0,.04)}.name b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.name span{color:#6b7280;font-size:11px;margin-top:2px}.head .name{font-weight:700;font-size:13px}
+.hdays{flex:none}.mrow{display:flex;height:28px;border-bottom:1px solid #e5e7eb}.mcell{flex:none;border-left:2px solid #cbd5e1;font-size:13px;font-weight:800;color:#1f2937;padding-top:6px;white-space:nowrap;text-align:center;overflow:hidden}
+.drow{display:flex;height:36px}.dcell{flex:none;text-align:center;font-size:11px;font-weight:700;color:#374151;border-right:1px solid #f1f5f9;padding-top:3px;line-height:14px}.dcell small{display:block;font-size:9px;font-weight:400;color:#9ca3af}.dcell.we{background:#fafafa;color:#9ca3af}.dcell.sun{color:#ef4444}.dcell.today{background:#2563eb;color:#fff;border-radius:6px}.dcell.today small{color:#dbeafe}.dcell.m1{border-left:2px solid #cbd5e1}
+.days{position:relative;flex:none;min-height:45px}.wk{position:absolute;top:0;bottom:0;background:#fafafa}.mline{position:absolute;top:0;bottom:0;width:2px;background:#cbd5e1}
+.row.prow{min-height:28px;background:#f8fafc}.prow .name{background:#f1f5f9;flex-direction:row;align-items:center;justify-content:flex-start;gap:6px;font-weight:800;font-size:13px;color:#334155}.prow .name span{margin:0;font-weight:400}.prow .days{min-height:27px}
+.ptag{display:inline-block;font-size:10px;font-weight:700;color:#475569;background:#f1f5f9;border-radius:4px;padding:1px 5px;margin-left:4px;vertical-align:1px}
+.pf{display:flex;gap:6px;flex-wrap:wrap}.pf button{min-height:36px;padding:6px 12px;border-radius:999px;border:1px solid #d1d5db;background:#fff;font-weight:700;font-size:13px;cursor:pointer;color:#374151}.pf button.on{background:#1f2937;color:#fff;border-color:#1f2937}
+.box select{width:100%;padding:8px;border:1px solid #d1d5db;border-radius:7px;background:#fff;min-height:40px}
+.mrowm{display:grid;grid-template-columns:1fr 90px 100px 70px 36px;gap:6px;align-items:center;padding:4px 0}.mrowm input,.mrowm select{min-height:38px}.mlist{max-height:55vh;overflow:auto;margin-top:8px;border-top:1px solid #e5e7eb;padding-top:6px}
+.x{border:0;background:none;color:#9ca3af;font-size:20px;cursor:pointer;line-height:1;padding:4px}.x:hover{color:#dc2626}.x:disabled{opacity:.25;cursor:default}
+@media(max-width:650px){.mrowm{grid-template-columns:1fr 70px 80px 32px}.mrowm .use{display:none}}
+.todayline{position:absolute;top:0;bottom:0;width:2px;background:#2563eb;opacity:.35;z-index:1;pointer-events:none}
+.sync{font-size:12px;color:#6b7280;display:flex;align-items:center;gap:6px}.sync i{width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block}.sync.busy i{background:#f59e0b}.sync.err{color:#dc2626}.sync.err i{background:#dc2626}.sync.warn{color:#b45309}.sync.warn i{background:#f59e0b}
+.bar{position:absolute;height:24px;border-radius:5px;z-index:2;font-size:11px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:4px 7px;line-height:15px;cursor:pointer;text-align:left;color:#fff;border:1px solid transparent}
+.bar:hover{filter:brightness(.93)}
+.modal{position:fixed;inset:0;background:rgba(17,24,39,.42);display:flex;justify-content:center;align-items:flex-start;padding:35px 12px;z-index:10;overflow:auto}
+.box{width:min(560px,100%);background:#fff;border-radius:12px;padding:18px}
+.box label{font-size:12px;font-weight:700;display:block;margin:9px 0 4px}.box input,.box textarea{width:100%;padding:8px;border:1px solid #d1d5db;border-radius:7px;background:#fff}.box textarea{min-height:90px;resize:vertical}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions{display:flex;gap:8px;margin-top:15px;flex-wrap:wrap}.save{background:#2563eb;color:#fff;border-color:#2563eb}.danger{color:#dc2626;border-color:#fecaca}
+.note{margin-top:10px;font-size:12px;color:#6b7280}.err{color:#dc2626;font-size:12px;margin-top:6px;min-height:0}
+.sec{margin-top:14px;border-top:1px solid #e5e7eb;padding-top:12px}.sec h3{font-size:14px;margin:0 0 6px;display:flex;justify-content:space-between;align-items:center}
+.chip{display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;color:#fff;white-space:nowrap}
+.dhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.seg button{min-height:44px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;font-weight:700;cursor:pointer;color:#374151;display:flex;align-items:center;justify-content:center;gap:6px}
+.seg button.on{color:#fff}
+.warn{margin-top:12px;padding:10px;border:1px solid #fecaca;border-radius:8px;color:#b91c1c;font-size:12px;background:#fef2f2}
+.empty{padding:30px;text-align:center;color:#6b7280}
+@media(max-width:650px){body{padding:10px}.grid2{grid-template-columns:1fr}}
+</style>
+</head><body><div class="app">
+<div class="top"><div><div class="sub">CAE TEAM 2 · TASK TRACKER</div><h1>팀원별 지시사항 · 업무 일정</h1><div class="sub">막대 색 = 진행 상황 · 진행중 Green · 문제 발생 Red · 완료 Gray</div></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><button id="add" class="btn primary" type="button">+ 지시사항 등록</button><button id="memberBtn" class="btn" type="button">팀원 관리</button><button id="connBtn" class="btn hidden" type="button">연결 설정</button><button id="backup" class="btn" type="button">백업</button><button id="restore" class="btn" type="button">복원</button><button id="clearSample" class="btn danger hidden" type="button">예시 데이터 삭제</button><input id="restoreFile" type="file" accept="application/json,.json" class="hidden"></div></div>
+<div class="toolbar"><div class="nav"><button id="prev" class="btn" type="button" title="1주 전">‹</button><div id="mt" class="month"></div><button id="next" class="btn" type="button" title="1주 후">›</button><button id="today" class="btn" type="button">오늘</button><button id="reload" class="btn hidden" type="button" title="다른 기기에서 바꾼 내용 불러오기">⟳</button><span id="sync" class="sync hidden"><i></i><span></span></span></div><div id="partFilter" class="pf"></div><div id="legend" class="legend"></div></div>
+<div id="wrap" class="wrap"><div id="board"></div></div><div id="emptyMsg"></div><div class="sub" style="margin-top:6px">달력을 마우스로 끌거나(PC) 손가락으로 밀어서(태블릿·모바일) 좌우로 넘길 수 있습니다.</div>
+<div id="storageNote" class="note">데이터 저장 상태를 확인 중입니다.</div>
+</div>
+
+<!-- 지시사항 등록 -->
+<div id="modal" class="modal hidden"><div class="box"><strong>지시사항 등록</strong>
+<label>팀원</label><select id="member"></select>
+<label>지시 내용</label><input id="task" maxlength="120" placeholder="예: 구조해석 표준안 작성">
+<label>상세 내용</label><textarea id="details" maxlength="1000" placeholder="세부 요청사항, 완료 기준, 참고사항 등을 입력하세요."></textarea>
+<div class="grid2"><div><label>시작일</label><input id="start" type="date"></div><div><label>종료일</label><input id="end" type="date"></div></div>
+<div class="sub" style="margin-top:8px">등록하면 진행 상황은 '진행중'으로 시작합니다.</div>
+<div id="err" class="err"></div>
+<div class="actions"><button id="register" class="btn save" type="button">등록</button><button id="cancel" class="btn" type="button">취소</button></div></div></div>
+
+<!-- 팀원 관리 -->
+<div id="memberModal" class="modal hidden"><div class="box"><strong>팀원 관리</strong>
+<div class="sub" style="margin-top:6px;line-height:1.6">이름·직급·파트를 바꾸거나 팀원을 추가할 수 있습니다. 이름을 바꾸면 그 팀원의 업무도 함께 옮겨집니다.<br>업무가 있는 팀원은 삭제할 수 없습니다(업무를 먼저 다른 팀원에게 옮겨 주세요).</div>
+<div class="mlist" id="memberListEdit"></div>
+<button id="memberAdd" class="btn sm primary" type="button" style="margin-top:8px">+ 팀원 추가</button>
+<div id="memberErr" class="err"></div>
+<div class="actions"><button id="memberSave" class="btn save" type="button">저장</button><button id="memberReset" class="btn" type="button">기본 명단으로</button><button id="memberCancel" class="btn" type="button">취소</button></div></div></div>
+
+<!-- 데이터 서버 연결 설정 (앱 모드) -->
+<div id="connModal" class="modal hidden"><div class="box"><strong>데이터 서버 연결 설정</strong>
+<div class="sub" style="margin-top:6px;line-height:1.6">Google Apps Script를 배포하고 받은 <b>웹 앱 URL</b>과 Code.gs의 <b>API_KEY</b>를 넣어 주세요.<br>기기마다 처음 한 번만 설정하면 됩니다.</div>
+<label>웹 앱 URL</label><input id="connUrl" inputmode="url" autocomplete="off" placeholder="https://script.google.com/macros/s/…/exec">
+<label>비밀 키 (API_KEY)</label><input id="connKey" autocomplete="off">
+<div id="connErr" class="err"></div>
+<div class="actions"><button id="connSave" class="btn save" type="button">연결 확인 후 저장</button><button id="connCancel" class="btn" type="button">닫기</button></div></div></div>
+
+<!-- 업무 상세 -->
+<div id="detail" class="modal hidden"><div class="box" id="detailBody"></div></div>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s),pad=n=>String(n).padStart(2,'0'),
+iso=(y,m,d)=>`${y}-${pad(m+1)}-${pad(d)}`,
+esc=s=>String(s??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
+const todayISO=()=>{const d=new Date();return iso(d.getFullYear(),d.getMonth(),d.getDate())};
+const addDays=(s,n)=>{const d=new Date(s+'T00:00:00');d.setDate(d.getDate()+n);return iso(d.getFullYear(),d.getMonth(),d.getDate())};
+const dayOf=s=>Number(s.slice(8,10));
+let seq=0;const uid=()=>Date.now()*100+(seq++%100);
+
+/* ===== 진행 상황 ===== */
+const STATUS=[
+ {id:'progress',name:'진행중',color:'#16a34a'},
+ {id:'issue',name:'문제 발생',color:'#dc2626'},
+ {id:'done',name:'완료',color:'#9ca3af'}
+];
+const stOf=id=>STATUS.find(s=>s.id===id)||STATUS[0];
+const KEY='caeTaskTracker',MKEY='caeTaskMembers',PKEY='caeTaskPart';
+
+/* ===== 팀원 명단 (CAE 2팀, 20명) ===== */
+const PARTS=['구조','내열','사출','태양광'],TITLES=['책임','선임','사원'];
+const DEFAULT_MEMBERS=[
+ ['길혁문','책임','구조'],['이종호','책임','구조'],['장명규','책임','내열'],['장호성','책임','구조'],
+ ['장대성','책임','사출'],['이영형','책임','구조'],['김명수','책임','내열'],['김종우','책임','구조'],
+ ['사진용','책임','구조'],['진윤우','책임','내열'],['채수찬','책임','사출'],['장은영','책임','내열'],
+ ['이지영','책임','사출'],['안범상','책임','구조'],['박혜원','선임','구조'],['박종진','선임','구조'],
+ ['김홍권','선임','구조'],['안재욱','사원','태양광'],['김동우','사원','사출'],['최현민','사원','내열']
+].map(([name,title,part],i)=>({id:'m'+(i+1),name,title,part}));
+function normMembers(a){return Array.isArray(a)?a.filter(m=>m&&String(m.name||'').trim()).map((m,i)=>({id:String(m.id||('m'+Date.now()+i)),name:String(m.name).trim(),title:TITLES.includes(m.title)?m.title:'책임',part:PARTS.includes(m.part)?m.part:PARTS[0]})):[]}
+let members=DEFAULT_MEMBERS.map(m=>({...m}));
+/* 앱(PWA) 모드: Google Apps Script 데이터 서버를 통해 Google 시트에 저장 / 파일 모드: 이 브라우저에 저장 */
+const IS_APP=true;
+const SERVER=IS_APP,CKEY='caeTaskConn',SNAPKEY='caeTaskSnapshot';
+let conn=null;try{conn=JSON.parse(localStorage.getItem(CKEY)||'null')}catch(e){}
+if(!SERVER){try{const mm=normMembers(JSON.parse(localStorage.getItem(MKEY)||'null'));if(mm.length)members=mm}catch(e){}}
+/* "안범상", "안범상 책임" 모두 같은 팀원으로 인식 */
+const memberOf=m=>{m=String(m||'').trim();return members.find(x=>x.name===m)||members.find(x=>m.startsWith(x.name+' '))};
+const sortMembers=a=>a.slice().sort((p,q)=>PARTS.indexOf(p.part)-PARTS.indexOf(q.part)||TITLES.indexOf(p.title)-TITLES.indexOf(q.title)||members.indexOf(p)-members.indexOf(q));
+const memberLabel=m=>{const x=memberOf(m);return x?`${x.name} ${x.title}`:m};
+let partFilter='all';try{partFilter=localStorage.getItem(PKEY)||'all'}catch(e){}
+if(partFilter!=='all'&&!PARTS.includes(partFilter))partFilter='all';
+
+/* 이전 버전 데이터(o/e/done 형식)도 그대로 읽어 옵니다 */
+function normTask(x){
+ const status=STATUS.some(s=>s.id===x.status)?x.status:(x.done?'done':'progress');
+ const e=x.e||x.o;let o=x.o||e;if(o>e)o=e;if(o<x.s)o=x.s;
+ const mm=memberOf(x.m);
+ return{id:(x.id==null||x.id==='')?uid():x.id,m:mm?mm.name:String(x.m||'').trim(),t:String(x.t||''),details:String(x.details||''),s:x.s,o,e,status,done:status==='done',sample:!!x.sample};
+}
+
+let storageOK=false,ts=[],loaded=!SERVER,version=0,saving=false,pending=false;
+if(!SERVER){try{ts=JSON.parse(localStorage.getItem(KEY)||'[]');storageOK=true}catch(e){ts=[]}}
+if(!Array.isArray(ts))ts=[];
+ts=ts.filter(x=>x&&x.s&&(x.e||x.o)).map(normTask);
+
+/* 팀장님 원본 파일에서도 열리도록 o(최초 종료)·done 필드를 함께 저장 */
+const save=()=>{ts=ts.map(normTask);if(SERVER){pending=true;flush();return}if(!storageOK)return;try{localStorage.setItem(KEY,JSON.stringify(ts));localStorage.setItem(MKEY,JSON.stringify(members))}catch(e){storageOK=false;updateNote()}};
+const findTask=id=>ts.find(x=>String(x.id)===String(id));
+
+/* ===== Google 시트 동기화 (웹 앱 모드) ===== */
+const hm=()=>{const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())};
+function setSync(text,cls){const el=$('#sync');el.className='sync '+(cls||'');el.querySelector('span').textContent=text}
+function applyServer(d){
+ version=Number(d.version)||0;
+ const mm=normMembers(d.members);members=mm.length?mm:DEFAULT_MEMBERS.map(m=>({...m}));
+ ts=(Array.isArray(d.tasks)?d.tasks:[]).filter(x=>x&&x.s&&(x.e||x.o)).map(normTask);
+}
+/* 마지막으로 불러온 데이터를 기기에 보관: 인터넷이 없어도 화면을 볼 수 있고, 저장 못 한 변경도 다음에 다시 보냄 */
+function cacheSnapshot(){try{localStorage.setItem(SNAPKEY,JSON.stringify({version,tasks:ts,members,pending:pending||saving}))}catch(e){}}
+/* 데이터 서버 호출: 불러오기는 GET, 저장은 POST(text/plain) */
+async function api(action,payload,c){
+ c=c||conn;if(!c||!c.url)throw new Error('연결 설정이 필요합니다');
+ let res;
+ if(action==='load')res=await fetch(c.url+(c.url.includes('?')?'&':'?')+'action=load&key='+encodeURIComponent(c.key||'')+'&t='+Date.now());
+ else res=await fetch(c.url,{method:'POST',body:JSON.stringify(Object.assign({action,key:c.key},payload))});
+ if(!res.ok)throw new Error('서버 응답 오류('+res.status+')');
+ let d;try{d=JSON.parse(await res.text())}catch(e){throw new Error('데이터 서버 주소를 확인해 주세요')}
+ if(d.error==='unauthorized')throw new Error('비밀 키가 맞지 않습니다');
+ if(d.error)throw new Error(d.error);
+ return d;
+}
+/* 변경할 때마다 전체를 시트에 저장. 다른 기기가 먼저 저장했으면 최신 내용을 다시 불러옴 */
+function flush(){
+ if(!SERVER||saving||!pending)return;
+ if(!conn){cacheSnapshot();setSync('연결 설정이 필요합니다','err');return}
+ pending=false;saving=true;cacheSnapshot();setSync('저장 중…','busy');
+ api('save',{json:JSON.stringify({tasks:ts,members}),version}).then(res=>{
+  saving=false;
+  if(res.conflict){applyServer(res.data);pending=false;cacheSnapshot();render(leftDate());setSync('다른 기기에서 먼저 바뀐 내용이 있어 최신 내용을 불러왔습니다. 방금 변경은 다시 확인해 주세요.','warn');return}
+  version=res.version;cacheSnapshot();setSync('저장됨 · '+hm());if(pending)flush();
+ }).catch(err=>{
+  saving=false;pending=true;cacheSnapshot();
+  if(/비밀 키|주소|연결 설정/.test(err.message)){setSync('저장 실패 — '+err.message,'err');openConn(err.message);return}
+  setSync('저장 실패 — 인터넷 연결 확인 후 자동으로 다시 시도합니다','err');setTimeout(flush,5000);
+ });
+}
+function loadFromServer(first){
+ if(!SERVER||saving||pending)return;
+ if(!conn){openConn();return}
+ if(!first&&(!$('#detail').classList.contains('hidden')||!$('#modal').classList.contains('hidden')||!$('#memberModal').classList.contains('hidden')))return;
+ setSync('불러오는 중…','busy');
+ api('load').then(d=>{if(saving||pending)return;applyServer(d);cacheSnapshot();const was=loaded;loaded=true;render(was?leftDate():undefined);setSync('최신 상태 · '+hm())})
+ .catch(err=>{
+  if(/비밀 키|주소/.test(err.message)){setSync('불러오기 실패 — '+err.message,'err');openConn(err.message);return}
+  setSync(loaded?'인터넷 연결 없음 — 마지막으로 불러온 내용을 보여주는 중':'불러오기 실패 — 인터넷 연결을 확인해 주세요','err');
+ });
+}
+/* 연결 설정 (기기마다 한 번) */
+function openConn(msg){$('#connUrl').value=conn?conn.url:'';$('#connKey').value=conn?conn.key:'';$('#connErr').textContent=msg||'';$('#connModal').classList.remove('hidden')}
+
+let selId=null,draft=null,mode=null;
+
+$('#legend').innerHTML=STATUS.map(s=>`<span><i class="dot" style="background:${s.color}"></i>${s.name}</span>`).join('')+'<span><i class="dot" style="background:#2563eb;opacity:.5;width:3px"></i>오늘</span>';
+
+/* ===== 일정 보드 (가로 스크롤 타임라인) ===== */
+const DAYMS=864e5,WD='일월화수목금토',wrap=$('#wrap');
+const toD=s=>new Date(s+'T00:00:00'),isoD=d=>iso(d.getFullYear(),d.getMonth(),d.getDate());
+let DW=36,NW=190,range=null;
+const idxOf=s=>Math.round((toD(s)-range.start)/DAYMS);
+const leftDate=()=>addDays(range.first,Math.round(wrap.scrollLeft/DW));
+function computeRange(){
+ /* 표시 범위: 오늘 기준 약 2개월 전 ~ 6개월 후, 등록된 업무가 더 넓으면 그만큼 확장 (월 단위로 맞춤) */
+ const t=todayISO();let a=addDays(t,-62),b=addDays(t,184);
+ ts.forEach(x=>{if(x.s<a)a=x.s;if(x.e>b)b=x.e});
+ const A=toD(a),B=toD(b),start=new Date(A.getFullYear(),A.getMonth(),1),end=new Date(B.getFullYear(),B.getMonth()+1,0);
+ return{start,n:Math.round((end-start)/DAYMS)+1,first:isoD(start),last:isoD(end)};
+}
+function render(anchor){
+ const keep=anchor||(range?leftDate():addDays(todayISO(),-7));
+ const mob=window.innerWidth<650;DW=mob?30:36;NW=mob?92:190;
+ range=computeRange();
+ const {n,start}=range,W=n*DW,tISO=todayISO();
+ let mrow='',drow='',bgx='';
+ for(let i=0;i<n;i++){
+  const d=new Date(start.getFullYear(),start.getMonth(),start.getDate()+i),dd=d.getDate(),w=d.getDay(),we=w===0||w===6,ds=isoD(d);
+  if(dd===1){const dim=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();mrow+=`<div class="mcell" style="width:${dim*DW}px"><span>${d.getFullYear()}년 ${d.getMonth()+1}월</span></div>`}
+  drow+=`<div class="dcell ${we?'we':''} ${w===0?'sun':''} ${ds===tISO?'today':''} ${dd===1&&i>0?'m1':''}" style="width:${DW}px">${dd}<small>${WD[w]}</small></div>`;
+  if(we)bgx+=`<div class="wk" style="left:${i*DW}px;width:${DW}px"></div>`;
+  if(dd===1&&i>0)bgx+=`<div class="mline" style="left:${i*DW-1}px"></div>`;
+ }
+ const ti=idxOf(tISO);
+ if(ti>=0&&ti<n)bgx+=`<div class="todayline" style="left:${ti*DW+DW/2-1}px"></div>`;
+ const grid=`background-image:repeating-linear-gradient(to right,transparent 0 ${DW-1}px,#f1f5f9 ${DW-1}px ${DW}px)`;
+ let h=`<div class="row head"><div class="name" style="width:${NW}px">팀원</div><div class="hdays" style="width:${W}px"><div class="mrow">${mrow}</div><div class="drow">${drow}</div></div></div>`;
+ const byM=new Map(),others=new Map();
+ ts.slice().sort((a,b)=>a.s.localeCompare(b.s)||String(a.id).localeCompare(String(b.id))).forEach(x=>{const mm=memberOf(x.m),mp=mm?byM:others,k=mm?mm.name:x.m;(mp.get(k)||mp.set(k,[]).get(k)).push(x)});
+ const rowHTML=(label,sub,items)=>{
+  const lanes=[],laneOf=new Map();
+  items.forEach(x=>{const sd=idxOf(x.s),ed=idxOf(x.e);let lane=lanes.findIndex(le=>sd>le);if(lane<0){lane=lanes.length;lanes.push(ed)}else lanes[lane]=ed;laneOf.set(x,lane)});
+  const LH=32,height=Math.max(46,12+lanes.length*LH),cnt=id=>items.filter(x=>x.status===id).length;
+  let r=`<div class="row" style="min-height:${height}px"><div class="name" style="width:${NW}px"><b title="${esc(label.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim())}">${label}</b><span>${items.length?`진행 ${cnt('progress')} · 문제 ${cnt('issue')} · 완료 ${cnt('done')}`:esc(sub)}</span></div><div class="days" style="width:${W}px;min-height:${height-1}px;${grid}">${bgx}`;
+  items.forEach(x=>{
+   const top=6+laneOf.get(x)*LH,bs=idxOf(x.s),be=idxOf(x.e),st=stOf(x.status);
+   r+=`<button type="button" data-id="${x.id}" class="bar" title="${esc(`${x.t} · ${x.s} ~ ${x.e} · ${st.name}`)}" style="left:${bs*DW+2}px;width:${(be-bs+1)*DW-4}px;top:${top}px;background:${st.color};border-color:${st.color}">${esc(x.t)}</button>`;
+  });
+  return r+'</div></div>';
+ };
+ const partRow=(title,count)=>`<div class="row prow"><div class="name" style="width:${NW}px">${esc(title)}<span>${count}명</span></div><div class="days" style="width:${W}px">${bgx}</div></div>`;
+ let rows='';
+ const ms=sortMembers(members);
+ PARTS.filter(p=>partFilter==='all'||partFilter===p).forEach(p=>{
+  const list=ms.filter(m=>m.part===p);if(!list.length)return;
+  rows+=partRow(p,list.length);
+  list.forEach(m=>{rows+=rowHTML(`${esc(m.name)}<span class="ptag">${esc(m.title)}</span>`,'일정 없음',byM.get(m.name)||[])});
+ });
+ if(partFilter==='all'&&others.size){
+  rows+=partRow('명단에 없는 팀원',others.size);
+  [...others.keys()].sort((a,b)=>a.localeCompare(b,'ko')).forEach(k=>{rows+=rowHTML(esc(k),'',others.get(k))});
+ }
+ if(!rows)rows=`<div class="row" style="min-height:60px"><div class="name" style="width:${NW}px"></div><div class="days" style="width:${W}px;${grid}">${bgx}</div></div>`;
+ $('#board').style.width=(NW+W)+'px';$('#board').style.setProperty('--nw',NW+'px');
+ $('#board').innerHTML=h+rows;
+ $('#emptyMsg').innerHTML=!loaded?'<div class="empty">Google 시트에서 불러오는 중…</div>':ts.length?'':'<div class="empty">등록된 일정이 없습니다.<br><br><button id="loadSample" class="btn primary" type="button">예시 데이터로 미리보기</button></div>';
+ $('#clearSample').classList.toggle('hidden',!ts.some(x=>x.sample));
+ renderPartFilter();
+ wrap.scrollLeft=Math.max(0,idxOf(keep))*DW;
+ updateLabel();
+}
+/* 화면에 보이는 기간을 "2026년 11월 ~ 12월" 형태로 표시 */
+function updateLabel(){
+ if(!range)return;
+ const l=toD(leftDate()),r=toD(addDays(leftDate(),Math.max(0,Math.floor((wrap.clientWidth-NW)/DW)-1)));
+ const ys=l.getFullYear(),ye=r.getFullYear(),ms=l.getMonth()+1,me=r.getMonth()+1;
+ $('#mt').textContent=ys===ye&&ms===me?`${ys}년 ${ms}월`:(ys===ye?`${ys}년 ${ms}월 ~ ${me}월`:`${ys}년 ${ms}월 ~ ${ye}년 ${me}월`);
+}
+let raf=0;wrap.addEventListener('scroll',()=>{if(raf)return;raf=requestAnimationFrame(()=>{raf=0;updateLabel()})});
+const scrollToDate=(ds,smooth=true)=>wrap.scrollTo({left:Math.max(0,idxOf(ds))*DW,behavior:smooth?'smooth':'auto'});
+function ensureVisible(ds){const l=leftDate(),r=addDays(l,Math.floor((wrap.clientWidth-NW)/DW)-1);if(ds<l||ds>r)scrollToDate(addDays(ds,-3))}
+
+/* PC: 마우스로 끌어서 좌우 이동 (태블릿·모바일은 손가락으로 기본 스크롤) */
+let drag=null,suppressClick=false;
+wrap.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button!==0)return;drag={x:e.clientX,sl:wrap.scrollLeft,moved:false}});
+window.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x;if(!drag.moved&&Math.abs(dx)>5){drag.moved=true;wrap.classList.add('dragging')}if(drag.moved){wrap.scrollLeft=drag.sl-dx;e.preventDefault()}});
+window.addEventListener('pointerup',()=>{if(!drag)return;if(drag.moved){suppressClick=true;setTimeout(()=>suppressClick=false,50)}wrap.classList.remove('dragging');drag=null});
+wrap.addEventListener('click',e=>{if(suppressClick){e.stopPropagation();e.preventDefault()}},true);
+let rt=0;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>render(leftDate()),150)});
+
+/* ===== 파트 필터 · 팀원 선택 목록 ===== */
+function renderPartFilter(){$('#partFilter').innerHTML=['all',...PARTS].map(p=>`<button type="button" data-p="${p}" class="${partFilter===p?'on':''}">${p==='all'?'전체':p}</button>`).join('')}
+$('#partFilter').onclick=e=>{const b=e.target.closest('[data-p]');if(!b)return;partFilter=b.dataset.p;try{localStorage.setItem(PKEY,partFilter)}catch(er){}render(leftDate())};
+function memberOptions(sel){
+ const cur=memberOf(sel);let h=sel&&!cur?`<option value="${esc(sel)}" selected>${esc(sel)} (명단에 없음)</option>`:(sel?'':'<option value="" selected disabled>팀원을 선택하세요</option>');
+ PARTS.forEach(p=>{const list=sortMembers(members).filter(m=>m.part===p);if(!list.length)return;h+=`<optgroup label="${p}">${list.map(m=>`<option value="${esc(m.name)}" ${cur&&cur.name===m.name?'selected':''}>${esc(m.name)} ${esc(m.title)}</option>`).join('')}</optgroup>`});
+ return h;
+}
+
+/* ===== 네비게이션 ===== */
+$('#prev').onclick=()=>wrap.scrollBy({left:-7*DW,behavior:'smooth'});
+$('#next').onclick=()=>wrap.scrollBy({left:7*DW,behavior:'smooth'});
+$('#today').onclick=()=>scrollToDate(addDays(todayISO(),-7));
+$('#board').onclick=e=>{const b=e.target.closest('[data-id]');if(b)openDetail(b.dataset.id)};
+$('#emptyMsg').onclick=e=>{if(e.target.id==='loadSample')loadSample()};
+
+/* ===== 등록 ===== */
+$('#add').onclick=()=>{$('#member').innerHTML=memberOptions(partFilter!=='all'?'':'');const t=todayISO();$('#start').value=t;$('#end').value=addDays(t,7);$('#err').textContent='';$('#modal').classList.remove('hidden');$('#member').focus()};
+$('#start').onchange=()=>{if($('#end').value&&$('#end').value<$('#start').value)$('#end').value=$('#start').value};
+$('#cancel').onclick=()=>$('#modal').classList.add('hidden');
+$('#register').onclick=()=>{
+ const member=$('#member').value.trim(),task=$('#task').value.trim(),s=$('#start').value,e=$('#end').value;
+ if(!member||!task||!s||!e){$('#err').textContent='팀원, 지시 내용, 시작일, 종료일을 모두 입력해 주세요.';return}
+ if(e<s){$('#err').textContent='종료일은 시작일보다 빠를 수 없습니다.';return}
+ ts.push({id:uid(),m:member,t:task,details:$('#details').value.trim(),s,e,status:'progress'});save();
+ ['#task','#details','#start','#end'].forEach(q=>$(q).value='');
+ $('#modal').classList.add('hidden');render();ensureVisible(s);
+};
+
+/* ===== 상세: 시작일 · 종료일 · 팀원 · 진행 상황 변경 + 상세 내용 수정 ===== */
+function openDetail(id){const x=findTask(id);if(!x)return;selId=String(id);draft={m:x.m,s:x.s,e:x.e,status:x.status,details:x.details};mode=null;renderDetail();$('#detail').classList.remove('hidden')}
+function closeDetail(){$('#detail').classList.add('hidden');selId=null;draft=null;mode=null}
+function renderDetail(errMsg){
+ const x=findTask(selId);if(!x){closeDetail();return}
+ const st=stOf(x.status);
+ let h=`<div class="dhead"><div><div class="sub">${esc(memberLabel(x.m))}</div><strong style="font-size:18px">${esc(x.t)}</strong></div><span class="chip" style="background:${st.color}">${st.name}</span></div>
+ <div class="sec">
+  <label style="margin-top:0">팀원</label><select id="dMember">${memberOptions(draft.m)}</select>
+  <div class="grid2"><div><label>시작일</label><input id="dStart" type="date" value="${draft.s}"></div><div><label>종료일</label><input id="dEnd" type="date" value="${draft.e}"></div></div>
+  <label>진행 상황</label><div class="seg">${STATUS.map(s=>`<button type="button" data-st="${s.id}" class="${draft.status===s.id?'on':''}" style="${draft.status===s.id?`background:${s.color};border-color:${s.color}`:''}"><i class="dot" style="background:${s.color};margin:0;${draft.status===s.id?'outline:2px solid #fff':''}"></i>${s.name}</button>`).join('')}</div>
+ </div>
+ <div class="sec"><h3>상세 내용 ${mode==='details'?'':'<button class="btn sm" data-act="editDetails" type="button">수정</button>'}</h3>`;
+ h+=mode==='details'?`<textarea id="dDetails" maxlength="1000" style="width:100%;min-height:110px;padding:8px;border:1px solid #d1d5db;border-radius:7px">${esc(draft.details)}</textarea>`
+  :`<div style="white-space:pre-wrap;color:#374151;font-size:13px;line-height:1.7">${esc(draft.details||'-')}</div>`;
+ h+='</div>';
+ h+=`<div class="err">${esc(errMsg||'')}</div>`;
+ if(mode==='delete')h+=`<div class="warn">이 업무가 삭제됩니다. 삭제하려면 <b>삭제 확인</b>을 누르세요.</div>`;
+ h+=`<div class="actions"><button class="btn save" data-act="save" type="button">변경 저장</button>
+  ${mode==='delete'?'<button class="btn danger" data-act="confirmRemove" type="button">삭제 확인</button><button class="btn" data-act="cancelDelete" type="button">삭제 취소</button>':'<button class="btn danger" data-act="remove" type="button">삭제</button>'}
+  <button class="btn" data-act="close" type="button" style="margin-left:auto">닫기</button></div>`;
+ $('#detailBody').innerHTML=h;
+}
+function readDraft(){
+ if(!draft)return;
+ if($('#dMember'))draft.m=$('#dMember').value;
+ if($('#dStart'))draft.s=$('#dStart').value;
+ if($('#dEnd'))draft.e=$('#dEnd').value;
+ if($('#dDetails'))draft.details=$('#dDetails').value;
+}
+$('#detailBody').addEventListener('click',e=>{
+ const sb=e.target.closest('[data-st]');
+ if(sb){readDraft();draft.status=sb.dataset.st;renderDetail();return}
+ const b=e.target.closest('button[data-act]');if(!b)return;
+ const x=findTask(selId);if(!x)return;const act=b.dataset.act;
+ if(act==='close'){closeDetail();return}
+ if(act==='editDetails'){readDraft();mode='details';renderDetail();$('#dDetails').focus();return}
+ if(act==='remove'){readDraft();mode='delete';renderDetail();return}
+ if(act==='cancelDelete'){readDraft();mode=null;renderDetail();return}
+ if(act==='confirmRemove'){ts=ts.filter(q=>q!==x);save();closeDetail();render();return}
+ if(act==='save'){
+  readDraft();const m=draft.m.trim();
+  if(!m||!draft.s||!draft.e){renderDetail('팀원, 시작일, 종료일을 모두 입력해 주세요.');return}
+  if(draft.e<draft.s){renderDetail('종료일은 시작일보다 빠를 수 없습니다.');return}
+  x.m=m;x.s=draft.s;x.e=draft.e;x.status=draft.status;x.details=draft.details.trim();
+  save();closeDetail();render();return;
+ }
+});
+
+/* ===== 예시 데이터 ===== */
+function loadSample(){
+ const T=todayISO(),D=n=>addDays(T,n);
+ const mk=(m,t,details,s,e,status)=>({id:uid(),m,t,details,s,e,status,sample:true});
+ ts=ts.concat([
+  mk('안범상','(예시) 구조해석 표준안 작성','예시 데이터입니다.',D(-10),D(5),'progress'),
+  mk('안범상','(예시) 하우징 강도 해석','예시 데이터입니다.',D(2),D(12),'progress'),
+  mk('최현민','(예시) 방열 해석 보고서','예시 데이터입니다. 문제 발생 → 빨간 막대',D(-12),D(4),'issue'),
+  mk('이지영','(예시) 사출 유동 해석','예시 데이터입니다. 완료 → 회색 막대',D(-15),D(-5),'done'),
+  mk('안재욱','(예시) 태양광 모듈 해석','예시 데이터입니다.',D(-3),D(9),'progress')
+ ]);
+ save();render(addDays(todayISO(),-7));
+}
+$('#clearSample').onclick=()=>{ts=ts.filter(x=>!x.sample);save();render()};
+
+/* ===== 백업/복원 ===== */
+$('#backup').onclick=()=>{const blob=new Blob([JSON.stringify({version:4,exportedAt:new Date().toISOString(),members,tasks:ts},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='CAE_Task_Backup_'+todayISO()+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+$('#restore').onclick=()=>$('#restoreFile').click();
+$('#restoreFile').onchange=ev=>{const f=ev.target.files&&ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result),arr=Array.isArray(o)?o:o.tasks;if(!Array.isArray(arr))throw new Error('bad');const rm=normMembers(o.members);if(rm.length)members=rm;ts=arr.filter(x=>x&&x.s&&(x.e||x.o)).map(normTask);save();render();alert('백업 데이터를 복원했습니다.')}catch(e){alert('올바른 CAE Task 백업 파일이 아닙니다.')}ev.target.value=''};r.readAsText(f)};
+
+/* ===== 팀원 관리 ===== */
+let mdraft=[];
+function renderMembersEdit(){
+ const used=n=>ts.filter(x=>x.m===n).length;
+ $('#memberListEdit').innerHTML=mdraft.map((m,i)=>{const orig=members.find(o=>o.id===m.id),u=orig?used(orig.name):0;return `<div class="mrowm">
+  <input data-i="${i}" data-f="name" value="${esc(m.name)}" maxlength="20" placeholder="이름">
+  <select data-i="${i}" data-f="title">${TITLES.map(t=>`<option ${t===m.title?'selected':''}>${t}</option>`).join('')}</select>
+  <select data-i="${i}" data-f="part">${PARTS.map(t=>`<option ${t===m.part?'selected':''}>${t}</option>`).join('')}</select>
+  <span class="sub use">${u?'업무 '+u+'건':''}</span>
+  <button class="x" type="button" data-del="${i}" title="${u?'업무가 있어 삭제할 수 없습니다':'삭제'}" ${u?'disabled':''}>×</button></div>`}).join('');
+}
+$('#memberBtn').onclick=()=>{mdraft=sortMembers(members).map(m=>({...m}));$('#memberErr').textContent='';renderMembersEdit();$('#memberModal').classList.remove('hidden')};
+$('#memberListEdit').addEventListener('input',e=>{const el=e.target.closest('[data-i]');if(el)mdraft[+el.dataset.i][el.dataset.f]=el.value});
+$('#memberListEdit').addEventListener('change',e=>{const el=e.target.closest('[data-i]');if(el)mdraft[+el.dataset.i][el.dataset.f]=el.value});
+$('#memberListEdit').addEventListener('click',e=>{const b=e.target.closest('[data-del]');if(!b||b.disabled)return;mdraft.splice(+b.dataset.del,1);renderMembersEdit()});
+$('#memberAdd').onclick=()=>{mdraft.push({id:'m'+uid(),name:'',title:'사원',part:partFilter!=='all'?partFilter:PARTS[0]});renderMembersEdit();const ins=$('#memberListEdit').querySelectorAll('input[data-f=name]');ins[ins.length-1].focus()};
+$('#memberReset').onclick=()=>{
+ const usedNames=new Set(ts.map(x=>x.m));
+ const extra=mdraft.filter(m=>!DEFAULT_MEMBERS.some(d=>d.id===m.id)&&usedNames.has((members.find(o=>o.id===m.id)||{}).name));
+ mdraft=DEFAULT_MEMBERS.map(m=>({...m})).concat(extra);$('#memberErr').textContent=extra.length?'업무가 있는 추가 팀원 '+extra.length+'명은 남겨 두었습니다.':'';renderMembersEdit();
+};
+$('#memberCancel').onclick=()=>$('#memberModal').classList.add('hidden');
+$('#memberSave').onclick=()=>{
+ mdraft.forEach(m=>m.name=String(m.name).trim());
+ if(mdraft.some(m=>!m.name)){$('#memberErr').textContent='이름을 비워 둘 수 없습니다. 필요 없는 줄은 × 로 지워 주세요.';return}
+ const names=mdraft.map(m=>m.name),dup=names.find((n,i)=>names.indexOf(n)!==i);
+ if(dup){$('#memberErr').textContent=`'${dup}' 이름이 중복됩니다.`;return}
+ /* 이름이 바뀐 팀원의 업무도 새 이름으로 옮김 */
+ const ren=new Map();mdraft.forEach(m=>{const o=members.find(x=>x.id===m.id);if(o&&o.name!==m.name)ren.set(o.name,m.name)});
+ ts.forEach(x=>{if(ren.has(x.m))x.m=ren.get(x.m)});
+ members=mdraft.map(m=>({...m}));save();$('#memberModal').classList.add('hidden');render(leftDate());
+};
+
+/* ===== 공통 ===== */
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;$('#modal').classList.add('hidden');$('#memberModal').classList.add('hidden');$('#connModal').classList.add('hidden');if(selId)closeDetail()});
+function updateNote(){$('#storageNote').textContent=SERVER?'데이터는 Google 시트에 저장됩니다. 태블릿·휴대폰·PC 어디서 열어도 같은 내용이 보이며, 다른 기기에서 바꾼 내용은 앱으로 다시 돌아오거나 ⟳ 버튼을 누르면 불러옵니다.':storageOK?'등록 내용은 이 태블릿의 현재 브라우저에만 저장됩니다. 같은 브라우저에서 다시 열면 유지됩니다. 브라우저 사이트 데이터 삭제 시에는 초기화될 수 있으니 주기적으로 백업해 주세요.':'현재 브라우저가 로컬 저장을 차단했습니다(이 화면을 닫으면 입력 내용이 사라집니다). Edge 또는 Chrome에서 이 파일을 직접 열어 주세요.'}
+updateNote();render();
+if(SERVER){
+ ['#reload','#sync','#connBtn'].forEach(q=>$(q).classList.remove('hidden'));
+ $('#reload').onclick=()=>loadFromServer(false);
+ $('#connBtn').onclick=()=>openConn();
+ $('#connCancel').onclick=()=>$('#connModal').classList.add('hidden');
+ $('#connSave').onclick=async()=>{
+  const c={url:$('#connUrl').value.trim(),key:$('#connKey').value.trim()};
+  if(!/^https:\/\/script\.google(usercontent)?\.com\//.test(c.url)){$('#connErr').textContent='웹 앱 URL은 https://script.google.com/macros/s/… 로 시작해야 합니다.';return}
+  if(!c.key){$('#connErr').textContent='비밀 키를 입력해 주세요.';return}
+  $('#connErr').textContent='연결 확인 중…';
+  try{const d=await api('load',null,c);conn=c;try{localStorage.setItem(CKEY,JSON.stringify(c))}catch(e){}
+   $('#connModal').classList.add('hidden');
+   if(pending){flush()}else{applyServer(d);cacheSnapshot();const was=loaded;loaded=true;render(was?leftDate():undefined);setSync('최신 상태 · '+hm())}
+  }catch(err){$('#connErr').textContent='연결 실패 — '+err.message}
+ };
+ /* 설정 링크(#url=...&key=...)로 열면 연결 정보를 자동 입력 */
+ if(location.hash.includes('url=')){const h=new URLSearchParams(location.hash.slice(1));if(h.get('url')){conn={url:h.get('url'),key:h.get('key')||''};try{localStorage.setItem(CKEY,JSON.stringify(conn))}catch(e){}}history.replaceState(null,'',location.pathname+location.search)}
+ /* 기기에 보관된 마지막 데이터를 먼저 보여주고, 서버에서 최신 내용을 받아옴 */
+ let snap=null;try{snap=JSON.parse(localStorage.getItem(SNAPKEY)||'null')}catch(e){}
+ if(snap){applyServer(snap);loaded=true;render(addDays(todayISO(),-7));if(snap.pending)pending=true}
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){if(pending)flush();else loadFromServer(false)}});
+ window.addEventListener('online',()=>{if(pending)flush()});
+ if(pending)flush();else loadFromServer(true);
+ if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+})();
+</script></body></html>
