@@ -25,13 +25,8 @@
 .hdays{flex:none}.mrow{display:flex;height:28px;border-bottom:1px solid #e5e7eb}.mcell{flex:none;border-left:2px solid #cbd5e1;font-size:13px;font-weight:800;color:#1f2937;padding-top:6px;white-space:nowrap;text-align:center;overflow:hidden}
 .drow{display:flex;height:36px}.dcell{flex:none;text-align:center;font-size:11px;font-weight:700;color:#374151;border-right:1px solid #f1f5f9;padding-top:3px;line-height:14px}.dcell small{display:block;font-size:9px;font-weight:400;color:#9ca3af}.dcell.we{background:#fafafa;color:#9ca3af}.dcell.sun{color:#ef4444}.dcell.today{background:#2563eb;color:#fff;border-radius:6px}.dcell.today small{color:#dbeafe}.dcell.m1{border-left:2px solid #cbd5e1}
 .days{position:relative;flex:none;min-height:45px}.wk{position:absolute;top:0;bottom:0;background:#fafafa}.mline{position:absolute;top:0;bottom:0;width:2px;background:#cbd5e1}
-.row.prow{min-height:28px;background:#f8fafc}.prow .name{background:#f1f5f9;flex-direction:row;align-items:center;justify-content:flex-start;gap:6px;font-weight:800;font-size:13px;color:#334155}.prow .name span{margin:0;font-weight:400}.prow .days{min-height:27px}
-.ptag{display:inline-block;font-size:10px;font-weight:700;color:#475569;background:#f1f5f9;border-radius:4px;padding:1px 5px;margin-left:4px;vertical-align:1px}
-.pf{display:flex;gap:6px;flex-wrap:wrap}.pf button{min-height:36px;padding:6px 12px;border-radius:999px;border:1px solid #d1d5db;background:#fff;font-weight:700;font-size:13px;cursor:pointer;color:#374151}.pf button.on{background:#1f2937;color:#fff;border-color:#1f2937}
 .box select{width:100%;padding:8px;border:1px solid #d1d5db;border-radius:7px;background:#fff;min-height:40px}
-.mrowm{display:grid;grid-template-columns:1fr 90px 100px 70px 36px;gap:6px;align-items:center;padding:4px 0}.mrowm input,.mrowm select{min-height:38px}.mlist{max-height:55vh;overflow:auto;margin-top:8px;border-top:1px solid #e5e7eb;padding-top:6px}
 .x{border:0;background:none;color:#9ca3af;font-size:20px;cursor:pointer;line-height:1;padding:4px}.x:hover{color:#dc2626}.x:disabled{opacity:.25;cursor:default}
-@media(max-width:650px){.mrowm{grid-template-columns:1fr 70px 80px 32px}.mrowm .use{display:none}}
 .todayline{position:absolute;top:0;bottom:0;width:2px;background:#2563eb;opacity:.35;z-index:1;pointer-events:none}
 .sync{font-size:12px;color:#6b7280;display:flex;align-items:center;gap:6px}.sync i{width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block}.sync.busy i{background:#f59e0b}.sync.err{color:#dc2626}.sync.err i{background:#dc2626}.sync.warn{color:#b45309}.sync.warn i{background:#f59e0b}
 .bar{position:absolute;height:24px;border-radius:5px;z-index:2;font-size:11px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:4px 7px;line-height:15px;cursor:pointer;text-align:left;color:#fff;border:1px solid transparent}
@@ -52,29 +47,21 @@
 </style>
 </head><body><div class="app">
 <div class="top"><div><div class="sub">CAE TEAM 2 · TASK TRACKER</div><h1>팀원별 지시사항 · 업무 일정</h1><div class="sub">막대 색 = 진행 상황 · 진행중 Green · 문제 발생 Red · 완료 Gray</div></div>
-<div style="display:flex;gap:8px;flex-wrap:wrap"><button id="add" class="btn primary" type="button">+ 지시사항 등록</button><button id="memberBtn" class="btn" type="button">팀원 관리</button><button id="connBtn" class="btn hidden" type="button">연결 설정</button><button id="backup" class="btn" type="button">백업</button><button id="restore" class="btn" type="button">복원</button><button id="clearSample" class="btn danger hidden" type="button">예시 데이터 삭제</button><input id="restoreFile" type="file" accept="application/json,.json" class="hidden"></div></div>
-<div class="toolbar"><div class="nav"><button id="prev" class="btn" type="button" title="1주 전">‹</button><div id="mt" class="month"></div><button id="next" class="btn" type="button" title="1주 후">›</button><button id="today" class="btn" type="button">오늘</button><button id="reload" class="btn hidden" type="button" title="다른 기기에서 바꾼 내용 불러오기">⟳</button><span id="sync" class="sync hidden"><i></i><span></span></span></div><div id="partFilter" class="pf"></div><div id="legend" class="legend"></div></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><button id="add" class="btn primary" type="button">+ 지시사항 등록</button><button id="connBtn" class="btn hidden" type="button">연결 설정</button><button id="backup" class="btn" type="button">백업</button><button id="restore" class="btn" type="button">복원</button><button id="clearSample" class="btn danger hidden" type="button">예시 데이터 삭제</button><input id="restoreFile" type="file" accept="application/json,.json" class="hidden"></div></div>
+<div class="toolbar"><div class="nav"><button id="prev" class="btn" type="button" title="1주 전">‹</button><div id="mt" class="month"></div><button id="next" class="btn" type="button" title="1주 후">›</button><button id="today" class="btn" type="button">오늘</button><button id="reload" class="btn hidden" type="button" title="다른 기기에서 바꾼 내용 불러오기">⟳</button><span id="sync" class="sync hidden"><i></i><span></span></span></div><div id="legend" class="legend"></div></div>
 <div id="wrap" class="wrap"><div id="board"></div></div><div id="emptyMsg"></div><div class="sub" style="margin-top:6px">달력을 마우스로 끌거나(PC) 손가락으로 밀어서(태블릿·모바일) 좌우로 넘길 수 있습니다.</div>
 <div id="storageNote" class="note">데이터 저장 상태를 확인 중입니다.</div>
 </div>
 
 <!-- 지시사항 등록 -->
 <div id="modal" class="modal hidden"><div class="box"><strong>지시사항 등록</strong>
-<label>팀원</label><select id="member"></select>
+<label>팀원</label><input id="member" list="nameList" maxlength="30" autocomplete="off" placeholder="예: 안범상 책임 (이미 등록된 이름은 자동 완성)"><datalist id="nameList"></datalist>
 <label>지시 내용</label><input id="task" maxlength="120" placeholder="예: 구조해석 표준안 작성">
 <label>상세 내용</label><textarea id="details" maxlength="1000" placeholder="세부 요청사항, 완료 기준, 참고사항 등을 입력하세요."></textarea>
 <div class="grid2"><div><label>시작일</label><input id="start" type="date"></div><div><label>종료일</label><input id="end" type="date"></div></div>
 <div class="sub" style="margin-top:8px">등록하면 진행 상황은 '진행중'으로 시작합니다.</div>
 <div id="err" class="err"></div>
 <div class="actions"><button id="register" class="btn save" type="button">등록</button><button id="cancel" class="btn" type="button">취소</button></div></div></div>
-
-<!-- 팀원 관리 -->
-<div id="memberModal" class="modal hidden"><div class="box"><strong>팀원 관리</strong>
-<div class="sub" style="margin-top:6px;line-height:1.6">이름·직급·파트를 바꾸거나 팀원을 추가할 수 있습니다. 이름을 바꾸면 그 팀원의 업무도 함께 옮겨집니다.<br>업무가 있는 팀원은 삭제할 수 없습니다(업무를 먼저 다른 팀원에게 옮겨 주세요).</div>
-<div class="mlist" id="memberListEdit"></div>
-<button id="memberAdd" class="btn sm primary" type="button" style="margin-top:8px">+ 팀원 추가</button>
-<div id="memberErr" class="err"></div>
-<div class="actions"><button id="memberSave" class="btn save" type="button">저장</button><button id="memberReset" class="btn" type="button">기본 명단으로</button><button id="memberCancel" class="btn" type="button">취소</button></div></div></div>
 
 <!-- 데이터 서버 연결 설정 (앱 모드) -->
 <div id="connModal" class="modal hidden"><div class="box"><strong>데이터 서버 연결 설정</strong>
@@ -123,18 +110,14 @@ const SERVER=IS_APP,CKEY='caeTaskConn',SNAPKEY='caeTaskSnapshot';
 let conn=null;try{conn=JSON.parse(localStorage.getItem(CKEY)||'null')}catch(e){}
 if(!SERVER){try{const mm=normMembers(JSON.parse(localStorage.getItem(MKEY)||'null'));if(mm.length)members=mm}catch(e){}}
 /* "안범상", "안범상 책임" 모두 같은 팀원으로 인식 */
-const memberOf=m=>{m=String(m||'').trim();return members.find(x=>x.name===m)||members.find(x=>m.startsWith(x.name+' '))};
-const sortMembers=a=>a.slice().sort((p,q)=>PARTS.indexOf(p.part)-PARTS.indexOf(q.part)||TITLES.indexOf(p.title)-TITLES.indexOf(q.title)||members.indexOf(p)-members.indexOf(q));
-const memberLabel=m=>{const x=memberOf(m);return x?`${x.name} ${x.title}`:m};
-let partFilter='all';try{partFilter=localStorage.getItem(PKEY)||'all'}catch(e){}
-if(partFilter!=='all'&&!PARTS.includes(partFilter))partFilter='all';
+/* 이름 앞뒤 공백·연속 공백을 정리: 같은 이름 = 같은 사람 */
+const normName=s=>String(s||'').trim().replace(/\s+/g,' ');
 
 /* 이전 버전 데이터(o/e/done 형식)도 그대로 읽어 옵니다 */
 function normTask(x){
  const status=STATUS.some(s=>s.id===x.status)?x.status:(x.done?'done':'progress');
  const e=x.e||x.o;let o=x.o||e;if(o>e)o=e;if(o<x.s)o=x.s;
- const mm=memberOf(x.m);
- return{id:(x.id==null||x.id==='')?uid():x.id,m:mm?mm.name:String(x.m||'').trim(),t:String(x.t||''),details:String(x.details||''),s:x.s,o,e,status,done:status==='done',sample:!!x.sample};
+ return{id:(x.id==null||x.id==='')?uid():x.id,m:normName(x.m),t:String(x.t||''),details:String(x.details||''),s:x.s,o,e,status,done:status==='done',sample:!!x.sample};
 }
 
 let storageOK=false,ts=[],loaded=!SERVER,version=0,saving=false,pending=false;
@@ -186,7 +169,7 @@ function flush(){
 function loadFromServer(first){
  if(!SERVER||saving||pending)return;
  if(!conn){openConn();return}
- if(!first&&(!$('#detail').classList.contains('hidden')||!$('#modal').classList.contains('hidden')||!$('#memberModal').classList.contains('hidden')))return;
+ if(!first&&(!$('#detail').classList.contains('hidden')||!$('#modal').classList.contains('hidden')))return;
  setSync('불러오는 중…','busy');
  api('load').then(d=>{if(saving||pending)return;applyServer(d);cacheSnapshot();const was=loaded;loaded=true;render(was?leftDate():undefined);setSync('최신 상태 · '+hm())})
  .catch(err=>{
@@ -231,8 +214,9 @@ function render(anchor){
  if(ti>=0&&ti<n)bgx+=`<div class="todayline" style="left:${ti*DW+DW/2-1}px"></div>`;
  const grid=`background-image:repeating-linear-gradient(to right,transparent 0 ${DW-1}px,#f1f5f9 ${DW-1}px ${DW}px)`;
  let h=`<div class="row head"><div class="name" style="width:${NW}px">팀원</div><div class="hdays" style="width:${W}px"><div class="mrow">${mrow}</div><div class="drow">${drow}</div></div></div>`;
- const byM=new Map(),others=new Map();
- ts.slice().sort((a,b)=>a.s.localeCompare(b.s)||String(a.id).localeCompare(String(b.id))).forEach(x=>{const mm=memberOf(x.m),mp=mm?byM:others,k=mm?mm.name:x.m;(mp.get(k)||mp.set(k,[]).get(k)).push(x)});
+ /* 업무가 등록된 사람만, 이름이 같으면 한 줄로 */
+ const byM=new Map();
+ ts.slice().sort((a,b)=>a.s.localeCompare(b.s)||String(a.id).localeCompare(String(b.id))).forEach(x=>{const k=normName(x.m);(byM.get(k)||byM.set(k,[]).get(k)).push(x)});
  const rowHTML=(label,sub,items)=>{
   const lanes=[],laneOf=new Map();
   items.forEach(x=>{const sd=idxOf(x.s),ed=idxOf(x.e);let lane=lanes.findIndex(le=>sd>le);if(lane<0){lane=lanes.length;lanes.push(ed)}else lanes[lane]=ed;laneOf.set(x,lane)});
@@ -244,24 +228,14 @@ function render(anchor){
   });
   return r+'</div></div>';
  };
- const partRow=(title,count)=>`<div class="row prow"><div class="name" style="width:${NW}px">${esc(title)}<span>${count}명</span></div><div class="days" style="width:${W}px">${bgx}</div></div>`;
  let rows='';
- const ms=sortMembers(members);
- PARTS.filter(p=>partFilter==='all'||partFilter===p).forEach(p=>{
-  const list=ms.filter(m=>m.part===p);if(!list.length)return;
-  rows+=partRow(p,list.length);
-  list.forEach(m=>{rows+=rowHTML(`${esc(m.name)}<span class="ptag">${esc(m.title)}</span>`,'일정 없음',byM.get(m.name)||[])});
- });
- if(partFilter==='all'&&others.size){
-  rows+=partRow('명단에 없는 팀원',others.size);
-  [...others.keys()].sort((a,b)=>a.localeCompare(b,'ko')).forEach(k=>{rows+=rowHTML(esc(k),'',others.get(k))});
- }
+ [...byM.keys()].sort((a,b)=>a.localeCompare(b,'ko')).forEach(k=>{rows+=rowHTML(esc(k),'',byM.get(k))});
  if(!rows)rows=`<div class="row" style="min-height:60px"><div class="name" style="width:${NW}px"></div><div class="days" style="width:${W}px;${grid}">${bgx}</div></div>`;
  $('#board').style.width=(NW+W)+'px';$('#board').style.setProperty('--nw',NW+'px');
  $('#board').innerHTML=h+rows;
  $('#emptyMsg').innerHTML=!loaded?'<div class="empty">Google 시트에서 불러오는 중…</div>':ts.length?'':'<div class="empty">등록된 일정이 없습니다.<br><br><button id="loadSample" class="btn primary" type="button">예시 데이터로 미리보기</button></div>';
  $('#clearSample').classList.toggle('hidden',!ts.some(x=>x.sample));
- renderPartFilter();
+ $('#nameList').innerHTML=[...byM.keys()].sort((a,b)=>a.localeCompare(b,'ko')).map(v=>`<option value="${esc(v)}">`).join('');
  wrap.scrollLeft=Math.max(0,idxOf(keep))*DW;
  updateLabel();
 }
@@ -284,15 +258,6 @@ window.addEventListener('pointerup',()=>{if(!drag)return;if(drag.moved){suppress
 wrap.addEventListener('click',e=>{if(suppressClick){e.stopPropagation();e.preventDefault()}},true);
 let rt=0;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>render(leftDate()),150)});
 
-/* ===== 파트 필터 · 팀원 선택 목록 ===== */
-function renderPartFilter(){$('#partFilter').innerHTML=['all',...PARTS].map(p=>`<button type="button" data-p="${p}" class="${partFilter===p?'on':''}">${p==='all'?'전체':p}</button>`).join('')}
-$('#partFilter').onclick=e=>{const b=e.target.closest('[data-p]');if(!b)return;partFilter=b.dataset.p;try{localStorage.setItem(PKEY,partFilter)}catch(er){}render(leftDate())};
-function memberOptions(sel){
- const cur=memberOf(sel);let h=sel&&!cur?`<option value="${esc(sel)}" selected>${esc(sel)} (명단에 없음)</option>`:(sel?'':'<option value="" selected disabled>팀원을 선택하세요</option>');
- PARTS.forEach(p=>{const list=sortMembers(members).filter(m=>m.part===p);if(!list.length)return;h+=`<optgroup label="${p}">${list.map(m=>`<option value="${esc(m.name)}" ${cur&&cur.name===m.name?'selected':''}>${esc(m.name)} ${esc(m.title)}</option>`).join('')}</optgroup>`});
- return h;
-}
-
 /* ===== 네비게이션 ===== */
 $('#prev').onclick=()=>wrap.scrollBy({left:-7*DW,behavior:'smooth'});
 $('#next').onclick=()=>wrap.scrollBy({left:7*DW,behavior:'smooth'});
@@ -301,11 +266,11 @@ $('#board').onclick=e=>{const b=e.target.closest('[data-id]');if(b)openDetail(b.
 $('#emptyMsg').onclick=e=>{if(e.target.id==='loadSample')loadSample()};
 
 /* ===== 등록 ===== */
-$('#add').onclick=()=>{$('#member').innerHTML=memberOptions(partFilter!=='all'?'':'');const t=todayISO();$('#start').value=t;$('#end').value=addDays(t,7);$('#err').textContent='';$('#modal').classList.remove('hidden');$('#member').focus()};
+$('#add').onclick=()=>{$('#member').value='';const t=todayISO();$('#start').value=t;$('#end').value=addDays(t,7);$('#err').textContent='';$('#modal').classList.remove('hidden');$('#member').focus()};
 $('#start').onchange=()=>{if($('#end').value&&$('#end').value<$('#start').value)$('#end').value=$('#start').value};
 $('#cancel').onclick=()=>$('#modal').classList.add('hidden');
 $('#register').onclick=()=>{
- const member=$('#member').value.trim(),task=$('#task').value.trim(),s=$('#start').value,e=$('#end').value;
+ const member=normName($('#member').value),task=$('#task').value.trim(),s=$('#start').value,e=$('#end').value;
  if(!member||!task||!s||!e){$('#err').textContent='팀원, 지시 내용, 시작일, 종료일을 모두 입력해 주세요.';return}
  if(e<s){$('#err').textContent='종료일은 시작일보다 빠를 수 없습니다.';return}
  ts.push({id:uid(),m:member,t:task,details:$('#details').value.trim(),s,e,status:'progress'});save();
@@ -319,9 +284,9 @@ function closeDetail(){$('#detail').classList.add('hidden');selId=null;draft=nul
 function renderDetail(errMsg){
  const x=findTask(selId);if(!x){closeDetail();return}
  const st=stOf(x.status);
- let h=`<div class="dhead"><div><div class="sub">${esc(memberLabel(x.m))}</div><strong style="font-size:18px">${esc(x.t)}</strong></div><span class="chip" style="background:${st.color}">${st.name}</span></div>
+ let h=`<div class="dhead"><div><div class="sub">${esc(x.m)}</div><strong style="font-size:18px">${esc(x.t)}</strong></div><span class="chip" style="background:${st.color}">${st.name}</span></div>
  <div class="sec">
-  <label style="margin-top:0">팀원</label><select id="dMember">${memberOptions(draft.m)}</select>
+  <label style="margin-top:0">팀원</label><input id="dMember" list="nameList" maxlength="30" autocomplete="off" value="${esc(draft.m)}">
   <div class="grid2"><div><label>시작일</label><input id="dStart" type="date" value="${draft.s}"></div><div><label>종료일</label><input id="dEnd" type="date" value="${draft.e}"></div></div>
   <label>진행 상황</label><div class="seg">${STATUS.map(s=>`<button type="button" data-st="${s.id}" class="${draft.status===s.id?'on':''}" style="${draft.status===s.id?`background:${s.color};border-color:${s.color}`:''}"><i class="dot" style="background:${s.color};margin:0;${draft.status===s.id?'outline:2px solid #fff':''}"></i>${s.name}</button>`).join('')}</div>
  </div>
@@ -354,7 +319,7 @@ $('#detailBody').addEventListener('click',e=>{
  if(act==='cancelDelete'){readDraft();mode=null;renderDetail();return}
  if(act==='confirmRemove'){ts=ts.filter(q=>q!==x);save();closeDetail();render();return}
  if(act==='save'){
-  readDraft();const m=draft.m.trim();
+  readDraft();const m=normName(draft.m);
   if(!m||!draft.s||!draft.e){renderDetail('팀원, 시작일, 종료일을 모두 입력해 주세요.');return}
   if(draft.e<draft.s){renderDetail('종료일은 시작일보다 빠를 수 없습니다.');return}
   x.m=m;x.s=draft.s;x.e=draft.e;x.status=draft.status;x.details=draft.details.trim();
@@ -382,41 +347,8 @@ $('#backup').onclick=()=>{const blob=new Blob([JSON.stringify({version:4,exporte
 $('#restore').onclick=()=>$('#restoreFile').click();
 $('#restoreFile').onchange=ev=>{const f=ev.target.files&&ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const o=JSON.parse(r.result),arr=Array.isArray(o)?o:o.tasks;if(!Array.isArray(arr))throw new Error('bad');const rm=normMembers(o.members);if(rm.length)members=rm;ts=arr.filter(x=>x&&x.s&&(x.e||x.o)).map(normTask);save();render();alert('백업 데이터를 복원했습니다.')}catch(e){alert('올바른 CAE Task 백업 파일이 아닙니다.')}ev.target.value=''};r.readAsText(f)};
 
-/* ===== 팀원 관리 ===== */
-let mdraft=[];
-function renderMembersEdit(){
- const used=n=>ts.filter(x=>x.m===n).length;
- $('#memberListEdit').innerHTML=mdraft.map((m,i)=>{const orig=members.find(o=>o.id===m.id),u=orig?used(orig.name):0;return `<div class="mrowm">
-  <input data-i="${i}" data-f="name" value="${esc(m.name)}" maxlength="20" placeholder="이름">
-  <select data-i="${i}" data-f="title">${TITLES.map(t=>`<option ${t===m.title?'selected':''}>${t}</option>`).join('')}</select>
-  <select data-i="${i}" data-f="part">${PARTS.map(t=>`<option ${t===m.part?'selected':''}>${t}</option>`).join('')}</select>
-  <span class="sub use">${u?'업무 '+u+'건':''}</span>
-  <button class="x" type="button" data-del="${i}" title="${u?'업무가 있어 삭제할 수 없습니다':'삭제'}" ${u?'disabled':''}>×</button></div>`}).join('');
-}
-$('#memberBtn').onclick=()=>{mdraft=sortMembers(members).map(m=>({...m}));$('#memberErr').textContent='';renderMembersEdit();$('#memberModal').classList.remove('hidden')};
-$('#memberListEdit').addEventListener('input',e=>{const el=e.target.closest('[data-i]');if(el)mdraft[+el.dataset.i][el.dataset.f]=el.value});
-$('#memberListEdit').addEventListener('change',e=>{const el=e.target.closest('[data-i]');if(el)mdraft[+el.dataset.i][el.dataset.f]=el.value});
-$('#memberListEdit').addEventListener('click',e=>{const b=e.target.closest('[data-del]');if(!b||b.disabled)return;mdraft.splice(+b.dataset.del,1);renderMembersEdit()});
-$('#memberAdd').onclick=()=>{mdraft.push({id:'m'+uid(),name:'',title:'사원',part:partFilter!=='all'?partFilter:PARTS[0]});renderMembersEdit();const ins=$('#memberListEdit').querySelectorAll('input[data-f=name]');ins[ins.length-1].focus()};
-$('#memberReset').onclick=()=>{
- const usedNames=new Set(ts.map(x=>x.m));
- const extra=mdraft.filter(m=>!DEFAULT_MEMBERS.some(d=>d.id===m.id)&&usedNames.has((members.find(o=>o.id===m.id)||{}).name));
- mdraft=DEFAULT_MEMBERS.map(m=>({...m})).concat(extra);$('#memberErr').textContent=extra.length?'업무가 있는 추가 팀원 '+extra.length+'명은 남겨 두었습니다.':'';renderMembersEdit();
-};
-$('#memberCancel').onclick=()=>$('#memberModal').classList.add('hidden');
-$('#memberSave').onclick=()=>{
- mdraft.forEach(m=>m.name=String(m.name).trim());
- if(mdraft.some(m=>!m.name)){$('#memberErr').textContent='이름을 비워 둘 수 없습니다. 필요 없는 줄은 × 로 지워 주세요.';return}
- const names=mdraft.map(m=>m.name),dup=names.find((n,i)=>names.indexOf(n)!==i);
- if(dup){$('#memberErr').textContent=`'${dup}' 이름이 중복됩니다.`;return}
- /* 이름이 바뀐 팀원의 업무도 새 이름으로 옮김 */
- const ren=new Map();mdraft.forEach(m=>{const o=members.find(x=>x.id===m.id);if(o&&o.name!==m.name)ren.set(o.name,m.name)});
- ts.forEach(x=>{if(ren.has(x.m))x.m=ren.get(x.m)});
- members=mdraft.map(m=>({...m}));save();$('#memberModal').classList.add('hidden');render(leftDate());
-};
-
 /* ===== 공통 ===== */
-document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;$('#modal').classList.add('hidden');$('#memberModal').classList.add('hidden');$('#connModal').classList.add('hidden');if(selId)closeDetail()});
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;$('#modal').classList.add('hidden');$('#connModal').classList.add('hidden');if(selId)closeDetail()});
 function updateNote(){$('#storageNote').textContent=SERVER?'데이터는 Google 시트에 저장됩니다. 태블릿·휴대폰·PC 어디서 열어도 같은 내용이 보이며, 다른 기기에서 바꾼 내용은 앱으로 다시 돌아오거나 ⟳ 버튼을 누르면 불러옵니다.':storageOK?'등록 내용은 이 태블릿의 현재 브라우저에만 저장됩니다. 같은 브라우저에서 다시 열면 유지됩니다. 브라우저 사이트 데이터 삭제 시에는 초기화될 수 있으니 주기적으로 백업해 주세요.':'현재 브라우저가 로컬 저장을 차단했습니다(이 화면을 닫으면 입력 내용이 사라집니다). Edge 또는 Chrome에서 이 파일을 직접 열어 주세요.'}
 updateNote();render();
 if(SERVER){
